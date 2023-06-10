@@ -22,6 +22,7 @@ class Tg(LocatorStorage):
                 query = split[i]
                 response = json.loads(self.master.findMovies(query))['docs']
                 films = [x for x in response if query.lower() in x['name'].lower()]
+                films.sort(key= lambda x: x['year'])
                 lines = map(lambda x: f"[{x['name']} ({str(x['year'])})]"+
                                       f"(https://www.kinopoisk.ru/film/{str(x['id'])})", films)
                 text = '\n'.join(lines)
