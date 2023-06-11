@@ -1,3 +1,4 @@
+import json
 from typing import Optional, List
 from src.domain.locator import LocatorStorage, Locator
 
@@ -7,7 +8,10 @@ class Master(LocatorStorage):
         #self.tg = self.locator.tg()
         self.kp = self.locator.kp()
 
-    def findMovies(self, query: str) -> str:
-        return self.kp.getMovies(query)
+    def findMovies(self, request: str) -> list[str]:
+        response = json.loads(self.kp.getMovies(request))['docs']
+        films = [x for x in response if request.lower() in x['name'].lower()]
+        films.sort(key=lambda x: x['year'])
+        return films
 
 #END

@@ -20,9 +20,7 @@ class Tg(LocatorStorage):
         def cmd_find(m: Message, _=False):
             requests = list(map(lambda x: x.split('"')[1], re.findall(r'\"[^"]+\"', m.text)))
             for request in requests:
-                response = json.loads(self.master.findMovies(request))['docs']
-                films = [x for x in response if request.lower() in x['name'].lower()]
-                films.sort(key=lambda x: x['year'])
+                films = self.master.findMovies(request)
                 lines = list(map(lambda x: f"[{x['name']} ({str(x['year'])})]" +
                                       f"(https://www.kinopoisk.ru/film/{str(x['id'])})", films))
                 text = f'Ваш запрос: "{request}"\n\n'
