@@ -8,7 +8,6 @@ class Kp(LocatorStorage):
     def getMovies(self, query: str) -> str:
         request = 'https://api.kinopoisk.dev/v1.2/movie/search?limit=50&query='+query
         #request = 'https://api.kinopoisk.dev/v1.3/movie?name='+query
-        #print(request)
         response = requests.get(url=request, headers={'X-API-KEY': self.config.kpToken()})
         return response.text
 

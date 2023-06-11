@@ -2,6 +2,7 @@
 from src.domain.locator import glob
 import requests
 import json
+import re
 
 def main():
     locator = glob()

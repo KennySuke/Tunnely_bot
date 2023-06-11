@@ -2,6 +2,7 @@ import telebot
 from telebot.types import Message
 from src.domain.locator import LocatorStorage, Locator
 import json
+import re
 
 class Tg(LocatorStorage):
 
@@ -17,21 +18,21 @@ class Tg(LocatorStorage):
 
         @self.tg.message_handler(content_types=['text'])
         def cmd_find(m: Message, _=False):
-            split = m.text.split('"')
-            for i in range(1, len(split), 2):
-                query = split[i]
-                response = json.loads(self.master.findMovies(query))['docs']
-                films = [x for x in response if query.lower() in x['name'].lower()]
-                films.sort(key= lambda x: x['year'])
-                lines = map(lambda x: f"[{x['name']} ({str(x['year'])})]"+
-                                      f"(https://www.kinopoisk.ru/film/{str(x['id'])})", films)
-                text = '\n'.join(lines)
-
+            requests = list(map(lambda x: x.split('"')[1], re.findall(r'\"[^"]+\"', m.text)))
+            for request in requests:
+                response = json.loads(self.master.findMovies(request))['docs']
+                films = [x for x in response if request.lower() in x['name'].lower()]
+                films.sort(key=lambda x: x['year'])
+                lines = list(map(lambda x: f"[{x['name']} ({str(x['year'])})]" +
+                                      f"(https://www.kinopoisk.ru/film/{str(x['id'])})", films))
+                text = f'Ваш запрос: "{request}"\n\n'
+                text += "Найдено:\n"+'\n'.join(lines) if lines else "Фильмов с таким названием не найдено."
                 self.tg.send_message(chat_id=m.chat.id,
                                      parse_mode="Markdown",
                                      text=text,
-                                     disable_web_page_preview=(len(films)>1))
-
+                                     reply_to_message_id=m.id,
+                                     disable_web_page_preview=(len(films) > 1)
+                                     )
 
 #END
 
